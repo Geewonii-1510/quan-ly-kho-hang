@@ -1,0 +1,63 @@
+# Docker Compose - WMS System
+# Hệ thống Quản lý Kho hàng tích hợp AI
+# Usage / Cách sử dụng:
+#   docker-compose up -d
+#   Then open / Sau đó mở: http://localhost:3000
+
+services:
+  # MySQL Database / Cơ sở dữ liệu MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: wms-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: wms_db
+      MYSQL_USER: wms_user
+      MYSQL_PASSWORD: wms_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend - FastAPI / Backend Python
+  backend:
+    build: ./backend
+    container_name: wms-backend
+    restart: always
+    env_file:
+      - ./backend/.env
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: wms_user
+      DB_PASSWORD: wms_password
+      DB_NAME: wms_db
+      SECRET_KEY: wms-docker-secret-key-2024
+      GEMINI_MODEL: gemini-3.6-flash
+      CORS_ORIGINS: http://localhost:3000,http://localhost:5173
+    ports:
+      - "8000:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # Frontend - React / Frontend React
+  frontend:
+    build: ./frontend
+    container_name: wms-frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+    driver: local
