@@ -10,9 +10,9 @@ from database import get_db
 from models.product import Product, Category
 from models.inventory import Inventory
 from models.user import User
-from schemas.inventory import InventoryResponse, InventoryAlert
+from schemas.inventory import InventoryResponse, InventoryAlert, StockCardResponse
 from services.auth_service import get_current_user
-from services.inventory_service import get_low_stock_products
+from services.inventory_service import get_low_stock_products, get_stock_card
 
 router = APIRouter(prefix="/api/inventory", tags=["Inventory / Tồn kho"])
 
@@ -79,3 +79,42 @@ def get_inventory_alerts(
     Get low stock alerts / Lấy cảnh báo tồn kho thấp
     """
     return get_low_stock_products(db)
+
+
+@router.get("/stock-card", response_model=StockCardResponse)
+def get_product_stock_card(
+    product_id: int = Query(..., description="ID sản phẩm cần tra cứu thẻ kho"),
+    start_date: Optional[str] = Query(None, description="Ngày bắt đầu YYYY-MM-DD"),
+    end_date: Optional[str] = Query(None, description="Ngày kết thúc YYYY-MM-DD"),
+    supplier_id: Optional[int] = Query(None, description="ID nhà cung cấp (nếu lọc theo NCC)"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Tra cứu Thẻ kho / Lịch sử nhập xuất của hàng hóa theo thời gian và nhà cung cấp
+    (Stock Card Ledger: tracks all incoming/outgoing transactions with running balance)
+    """
+    from datetime import datetime, timedelta, timezone
+
+    now = datetime.now(timezone.utc)
+    if end_date:
+        end_dt = datetime.strptime(end_date, "%Y-%m-%d").replace(
+            hour=23, minute=59, second=59, tzinfo=timezone.utc
+        )
+    else:
+        end_dt = now
+
+    if start_date:
+        start_dt = datetime.strptime(start_date, "%Y-%m-%d").replace(
+            hour=0, minute=0, second=0, tzinfo=timezone.utc
+        )
+    else:
+        start_dt = end_dt - timedelta(days=30)
+
+    return get_stock_card(
+        db=db,
+        product_id=product_id,
+        start_date=start_dt,
+        end_date=end_dt,
+        supplier_id=supplier_id,
+    )

@@ -14,6 +14,7 @@ import ImportOrders from './pages/ImportOrders';
 import ExportOrders from './pages/ExportOrders';
 import Inventory from './pages/Inventory';
 import Reports from './pages/Reports';
+import StockCard from './pages/StockCard';
 import AIAssistant from './pages/AIAssistant';
 import UsersPage from './pages/Users';
 
@@ -30,6 +31,7 @@ function App() {
             <Route path="/import-orders" element={<ImportOrders />} />
             <Route path="/export-orders" element={<ExportOrders />} />
             <Route path="/inventory" element={<Inventory />} />
+            <Route path="/stock-card" element={<StockCard />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/ai-assistant" element={<AIAssistant />} />
             <Route path="/users" element={<UsersPage />} />

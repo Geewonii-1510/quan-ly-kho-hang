@@ -26,6 +26,7 @@ const navItems = [
       { path: '/import-orders', icon: ArrowDownToLine, label: 'Nhập kho / Import' },
       { path: '/export-orders', icon: ArrowUpFromLine, label: 'Xuất kho / Export' },
       { path: '/inventory', icon: Warehouse, label: 'Tồn kho / Inventory' },
+      { path: '/stock-card', icon: ClipboardList, label: 'Thẻ kho / Stock Card' },
     ]
   },
   {

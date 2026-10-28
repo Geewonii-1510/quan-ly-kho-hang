@@ -7,14 +7,14 @@ Tạo phiếu nhập kho với cập nhật tồn kho an toàn bằng transactio
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from database import get_db
 from models.user import User
 from models.product import Product
 from models.supplier import Supplier
 from models.import_order import ImportOrder, ImportOrderDetail
 from schemas.import_order import ImportOrderCreate, ImportOrderResponse
-from services.auth_service import get_current_user
+from services.auth_service import get_current_user, require_role
 from services.inventory_service import increase_stock
 
 router = APIRouter(prefix="/api/import-orders", tags=["Import Orders / Phiếu nhập kho"])
@@ -124,7 +124,7 @@ def get_import_order(
 def create_import_order(
     data: ImportOrderCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_role("admin", "warehouse_keeper"))
 ):
     """
     Create import order and update inventory (transaction-safe)
@@ -140,11 +140,12 @@ def create_import_order(
 
     try:
         # Create order / Tạo phiếu nhập
+        order_dt = data.order_date or datetime.now(timezone.utc)
         order = ImportOrder(
             code=_generate_import_code(db),
             supplier_id=data.supplier_id,
             created_by=current_user.id,
-            order_date=data.order_date,
+            order_date=order_dt,
             status="completed",
             note=data.note,
         )

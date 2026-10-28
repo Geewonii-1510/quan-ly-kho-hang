@@ -25,6 +25,55 @@ export default function Reports() {
 
   useEffect(() => { loadReport(); }, []);
 
+  const exportCSV = () => {
+    if (!summary || !summary.items || summary.items.length === 0) return;
+
+    const headers = [
+      'Mã SP',
+      'Tên SP',
+      'Danh mục',
+      'Tồn đầu kỳ',
+      'Nhập trong kỳ',
+      'Xuất trong kỳ',
+      'Tồn cuối kỳ',
+      'Tồn tối thiểu',
+      'Trạng thái'
+    ];
+
+    const rows = summary.items.map((item) => {
+      const isLow = item.min_stock > 0 && item.closing_stock < item.min_stock;
+      return [
+        item.product_code,
+        `"${item.product_name.replace(/"/g, '""')}"`,
+        `"${(item.category_name || '').replace(/"/g, '""')}"`,
+        item.opening_stock,
+        item.total_imported,
+        item.total_exported,
+        item.closing_stock,
+        item.min_stock,
+        isLow ? 'Thiếu hàng' : 'Đủ hàng'
+      ];
+    });
+
+    const csvContent = [
+      `BÁO CÁO NHẬP XUẤT TỒN KHO`,
+      `Từ ngày: ${startDate} Đến ngày: ${endDate}`,
+      `Tổng nhập: ${summary.total_imported} | Tổng xuất: ${summary.total_exported} | Số mặt hàng: ${summary.items.length}`,
+      '',
+      headers.join(','),
+      ...rows.map(r => r.join(','))
+    ].join('\r\n');
+
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Bao_cao_nhap_xuat_ton_${startDate}_${endDate}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div>
       <div className="page-header">
@@ -32,6 +81,11 @@ export default function Reports() {
           <h1 className="page-title">Báo cáo nhập xuất tồn / Inventory Report</h1>
           <p className="page-subtitle">Thống kê nhập xuất tồn kho theo thời gian / Inventory statistics by period</p>
         </div>
+        {summary?.items?.length > 0 && (
+          <button className="btn btn-secondary" onClick={exportCSV}>
+            <Download size={16} /> Xuất Báo Cáo (CSV)
+          </button>
+        )}
       </div>
 
       {/* Filters / Bộ lọc */}

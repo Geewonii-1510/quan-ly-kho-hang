@@ -67,20 +67,30 @@ npm run dev
 ## 📦 Tính năng / Features
 
 ### Quản lý cốt lõi / Core WMS
-- ✅ Đăng nhập & phân quyền (JWT) / Login & RBAC
+- ✅ Đăng nhập & phân quyền chặt chẽ (JWT & RBAC: Admin, Thủ kho, Kế toán)
 - ✅ Quản lý sản phẩm, danh mục, đơn vị tính / Products, categories, units
 - ✅ Quản lý nhà cung cấp / Supplier management
-- ✅ Phiếu nhập kho (tự động cập nhật tồn) / Import orders (auto-update stock)
-- ✅ Phiếu xuất kho (kiểm tra tồn trước khi xuất) / Export orders (stock validation)
+- ✅ Phiếu nhập kho (tự động cập nhật tồn bằng transaction)
+- ✅ Phiếu xuất kho (kiểm tra tồn trước khi xuất, ngăn chặn tồn kho âm)
 - ✅ Tồn kho thời gian thực / Real-time inventory
 - ✅ Cảnh báo hàng dưới tồn tối thiểu / Low stock alerts
-- ✅ Báo cáo nhập xuất tồn / Inventory reports
-- ✅ Dashboard thống kê / Statistics dashboard
+- ✅ **Thẻ kho & Tra cứu lịch sử nhập xuất theo hàng hóa, thời gian, NCC / Stock Card & Ledger**
+- ✅ **Báo cáo nhập xuất tồn & Xuất file CSV (Excel) / Export Reports**
+- ✅ Dashboard thống kê trực quan / Statistics dashboard
 
 ### AI tích hợp / AI Features (Google Gemini)
-- 🤖 Sinh báo cáo nhập xuất tồn tự động / Auto-generate inventory reports
-- 🤖 Gợi ý nhập hàng thông minh / Smart restock suggestions
-- 🤖 Phát hiện biến động bất thường / Anomaly detection
+- 🤖 Sinh báo cáo nhập xuất tồn tự động theo kỳ / Auto-generate inventory reports
+- 🤖 Gợi ý nhập hàng thông minh (dựa trên tồn kho, tồn tối thiểu, tốc độ xuất)
+- 🤖 Phát hiện biến động bất thường (xuất đột biến, hàng tồn lâu)
+- 🤖 Bảo mật dữ liệu nhạy cảm: Không gửi đơn giá mua trong prompt AI
+
+### Kiểm thử tự động / Automated Testing
+```bash
+# Chạy toàn bộ 13 test cases (nhập, xuất, tồn âm, thẻ kho, báo cáo AI)
+python -m pytest backend/tests -v
+```
+
+📖 **Tài liệu SDLC & Minh chứng dùng AI 4 giai đoạn:** Xem tại [`docs/SDLC_MINH_CHUNG_AI_DE_TAI_07.md`](docs/SDLC_MINH_CHUNG_AI_DE_TAI_07.md)
 
 ## 📁 Cấu trúc dự án / Project Structure
 

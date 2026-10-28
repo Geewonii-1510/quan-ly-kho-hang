@@ -7,3 +7,5 @@ dist/
 build/
 .DS_Store
 mysql_data/
+*.sqlite
+.pytest_cache/

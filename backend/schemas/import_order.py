@@ -28,7 +28,7 @@ class ImportOrderDetailResponse(BaseModel):
 
 class ImportOrderCreate(BaseModel):
     supplier_id: int
-    order_date: datetime
+    order_date: Optional[datetime] = None
     note: Optional[str] = None
     details: List[ImportOrderDetailCreate]
 

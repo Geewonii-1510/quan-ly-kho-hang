@@ -60,6 +60,8 @@ async def generate_ai_report(
 
         return AIReportResponse(**result)
 
+    except HTTPException:
+        raise
     except ValueError as e:
         raise HTTPException(
             status_code=400,

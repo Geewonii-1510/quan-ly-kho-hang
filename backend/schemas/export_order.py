@@ -28,7 +28,7 @@ class ExportOrderDetailResponse(BaseModel):
 
 class ExportOrderCreate(BaseModel):
     recipient: str
-    order_date: datetime
+    order_date: Optional[datetime] = None
     note: Optional[str] = None
     details: List[ExportOrderDetailCreate]
 

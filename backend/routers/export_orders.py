@@ -7,13 +7,13 @@ Tạo phiếu xuất kho với kiểm tra tồn kho
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from database import get_db
 from models.user import User
 from models.product import Product
 from models.export_order import ExportOrder, ExportOrderDetail
 from schemas.export_order import ExportOrderCreate, ExportOrderResponse
-from services.auth_service import get_current_user
+from services.auth_service import get_current_user, require_role
 from services.inventory_service import decrease_stock
 
 router = APIRouter(prefix="/api/export-orders", tags=["Export Orders / Phiếu xuất kho"])
@@ -112,7 +112,7 @@ def get_export_order(
 def create_export_order(
     data: ExportOrderCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_role("admin", "warehouse_keeper"))
 ):
     """
     Create export order and decrease inventory (transaction-safe)
@@ -124,11 +124,12 @@ def create_export_order(
 
     try:
         # Create order / Tạo phiếu xuất
+        order_dt = data.order_date or datetime.now(timezone.utc)
         order = ExportOrder(
             code=_generate_export_code(db),
             recipient=data.recipient,
             created_by=current_user.id,
-            order_date=data.order_date,
+            order_date=order_dt,
             status="completed",
             note=data.note,
         )
